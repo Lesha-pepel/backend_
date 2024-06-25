@@ -56,3 +56,17 @@ class PetCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class PetFeedView(APIView):
+    def get(self, request):
+        serializer = PetSerializer(data=request.query_params)
+        if serializer.is_valid():
+            pet = Pet.objects.get(id=serializer.validated_data['pet_id'])
+            recommended_food_name, recommended_amount, min_nutrients = recommend_food(pet)
+            data = {
+                'recommended_food_name': recommended_food_name,
+                'recommended_amount': recommended_amount,
+                'min_nutrients': min_nutrients,
+            }
+            return Response(data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
